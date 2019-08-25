@@ -1,8 +1,26 @@
+/* eslint no-dupe-keys: 0, no-mixed-operators: 0 */
 import React from 'react';
-import ListItem from '../../components/ListItem.js';
 import ReactDOM from 'react-dom';
 import { ListView } from 'antd-mobile';
-import styles from './appList.module.scss';
+import ListItem from '../../components/ListItem.js';
+
+const data = [
+  {
+    img: 'https://zos.alipayobjects.com/rmsportal/dKbkpPXKfvZzWCM.png',
+    title: 'Meet hotel',
+    desc: '不是所有的兼职汪都需要风吹日晒'
+  },
+  {
+    img: 'https://zos.alipayobjects.com/rmsportal/XmwCzSeJiqpkuMB.png',
+    title: "McDonald's invites you",
+    desc: '不是所有的兼职汪都需要风吹日晒'
+  },
+  {
+    img: 'https://zos.alipayobjects.com/rmsportal/hfVtzEhPzTUewPm.png',
+    title: 'Eat the week',
+    desc: '不是所有的兼职汪都需要风吹日晒'
+  }
+];
 const NUM_SECTIONS = 5;
 const NUM_ROWS_PER_SECTION = 5;
 let pageIndex = 0;
@@ -27,7 +45,8 @@ function genData(pIndex = 0) {
   sectionIDs = [...sectionIDs];
   rowIDs = [...rowIDs];
 }
-class AppList extends React.Component {
+
+class Demo extends React.Component {
   constructor(props) {
     super(props);
     const getSectionData = (dataBlob, sectionID) => dataBlob[sectionID];
@@ -39,28 +58,14 @@ class AppList extends React.Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     });
+
     this.state = {
       dataSource,
       isLoading: true,
-      appList: [
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/dKbkpPXKfvZzWCM.png',
-          title: 'Meet hotel',
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/XmwCzSeJiqpkuMB.png',
-          title: "McDonald's invites you",
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/hfVtzEhPzTUewPm.png',
-          title: 'Eat the week',
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        }
-      ]
+      height: (document.documentElement.clientHeight * 3) / 4
     };
   }
+
   componentDidMount() {
     // you can scroll to the specified position
     // setTimeout(() => this.lv.scrollTo(0, 120), 800);
@@ -77,12 +82,22 @@ class AppList extends React.Component {
     }, 600);
   }
 
+  // If you use redux, the data maybe at props, you need use `componentWillReceiveProps`
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.dataSource !== this.props.dataSource) {
+  //     this.setState({
+  //       dataSource: this.state.dataSource.cloneWithRowsAndSections(nextProps.dataSource),
+  //     });
+  //   }
+  // }
+
   onEndReached = event => {
     // load new data
     // hasMore: from backend data, indicates whether it is the last page, here is false
     if (this.state.isLoading && !this.state.hasMore) {
       return;
     }
+    console.log('reach end', event);
     this.setState({ isLoading: true });
     setTimeout(() => {
       genData(++pageIndex);
@@ -92,8 +107,8 @@ class AppList extends React.Component {
       });
     }, 1000);
   };
+
   render() {
-    let data = this.state.appList
     let index = data.length - 1;
     const row = (rowData, sectionID, rowID) => {
       if (index < 0) {
@@ -101,9 +116,18 @@ class AppList extends React.Component {
       }
       const obj = data[index--];
       return (
-        <div className={styles.content}>
-          <ListItem list={obj} key={rowID} indx={pageIndex}></ListItem>
-        </div>
+        <ListItem list={obj} key={rowID} indx={pageIndex}></ListItem>
+        // <div key={rowID} style={{ padding: '0 15px' }}>
+        //   <div style={{ display: '-webkit-box', display: 'flex', padding: '15px 0' }}>
+        //     <img style={{ height: '64px', marginRight: '15px' }} src={obj.img} alt="" />
+        //     <div style={{ lineHeight: 1 }}>
+        //       <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>{obj.des}</div>
+        //       <div>
+        //         <span style={{ fontSize: '30px', color: '#FF6E27' }}>35</span>¥ {rowID}
+        //       </div>
+        //     </div>
+        //   </div>
+        // </div>
       );
     };
 
@@ -113,7 +137,10 @@ class AppList extends React.Component {
         dataSource={this.state.dataSource}
         // renderBodyComponent={() => <MyBody />}
         renderRow={row}
-        useBodyScroll={true}
+        style={{
+          height: this.state.height,
+          overflow: 'auto'
+        }}
         pageSize={4}
         onScroll={() => {
           console.log('scroll');
@@ -125,4 +152,5 @@ class AppList extends React.Component {
     );
   }
 }
-export default AppList;
+
+export default Demo;

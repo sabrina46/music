@@ -5,6 +5,8 @@ import './App.scss';
 import Header from './view/home/Header.js';
 import Recommend from './view/home/Recommend.js';
 import AppList from './view/home/AppList.js';
+
+import './assets/css/antd.scss';
 class App extends React.Component {
   render() {
     return (

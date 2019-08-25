@@ -1,11 +1,5 @@
-.content{
-  widows: 80%;
+.content {
+  width: 100vw;
   margin: 0px auto;
-  border-bottom:1px solid #ddd;
-  background-color: pink;
-  .my-search{
-    .am-search-input{
-      background-color: #ddd;
-    }
-  }
+  border-bottom: 1px solid #ddd;
 }

@@ -1,17 +1,18 @@
 import React from 'react';
-
+import styles from './listItem.module.scss';
+import { Flex } from 'antd-mobile';
 class ListItem extends React.Component {
   render() {
     return (
-      <div className="item">
-        <span className="sort">1</span>
-        <img src="{this.props.list.img}" alt="app" />
-        <div className="recommend">
-          <span className="name">{this.props.list.name}</span>
-          <span className="info">{this.props.list.info}</span>
-          <span className="rate"></span>
+      <Flex className={styles.item}>
+        <span className={styles.sort}>1</span>
+        <img className={styles.img} src={this.props.list.img} alt="app" />
+        <div className={styles.recommend}>
+          <span className={styles.name}>{this.props.list.title}</span>
+          <span className={styles.info}>{this.props.list.desc}</span>
+          <span className={styles.rate}><i className="iconfont icon-pingfen1"></i></span>
         </div>
-      </div>
+      </Flex>
     );
   }
 }

@@ -1,0 +1,24 @@
+.content {
+  width: 100%;
+  border-bottom: 1px solid #ddd; }
+  .content .title {
+    font-size: 24px;
+    padding: 20px 0px 20px 20px; }
+  .content .list {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center; }
+    .content .list .item {
+      width: 400px;
+      font-size: 12px; }
+      .content .list .item .img {
+        width: 100%;
+        height: 400px;
+        background-color: #ddd;
+        border-radius: 20px; }
+      .content .list .item .name {
+        color: #000;
+        margin: 10px 0px; }
+      .content .list .item .info {
+        color: #ddd; }

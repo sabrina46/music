@@ -1,33 +1,27 @@
-.App {
-  text-align: center;
-}
+@charset "UTF-8";
+/* @import '~antd/dist/antd.css' */
+.app {
+  width: 750px;
+  margin: 10px auto; }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px; }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/******** 滚动条样式 ********/
+* {
+  outline: none; }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px; }
+  *::-webkit-scrollbar-button {
+    display: none; }
+  *::-webkit-scrollbar-track {
+    border-radius: 3px;
+    background-color: transparent; }
+  *::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background-color: rgba(223, 59, 59, 0.5); }

@@ -7,7 +7,7 @@ class ShoppingList extends React.Component {
           <ul>
             <li>Instagram</li>
             <li>WtachApp</li>
-            <li>Instagram</li>
+            <li>Instagrat</li>
           </ul>
         </div>
      );

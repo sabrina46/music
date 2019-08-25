@@ -9,7 +9,7 @@ class ListItem extends React.Component {
         <img className={styles.img} src={this.props.list.img} alt="app" />
         <div className={styles.recommend}>
           <span className={styles.name}>{this.props.list.title}</span>
-          <span className={styles.info}>{this.props.list.desc}</span>
+          <span className={styles.info}>{this.props.list.category}</span>
           <span className={styles.rate}><i className="iconfont icon-pingfen1"></i></span>
         </div>
       </Flex>

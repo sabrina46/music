@@ -44,39 +44,44 @@ class AppList extends React.Component {
       isLoading: true,
       appList: [
         {
-          img: 'https://zos.alipayobjects.com/rmsportal/dKbkpPXKfvZzWCM.png',
-          title: 'Meet hotel',
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/XmwCzSeJiqpkuMB.png',
-          title: "McDonald's invites you",
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/hfVtzEhPzTUewPm.png',
-          title: 'Eat the week',
-          desc: '不是所有的兼职汪都需要风吹日晒'
+          img:'' ,
+          title: '',
+          desc: '',
+          category: ''
         }
       ]
     };
   }
   componentDidMount() {
-    // you can scroll to the specified position
-    // setTimeout(() => this.lv.scrollTo(0, 120), 800);
-
-    const hei = document.documentElement.clientHeight - ReactDOM.findDOMNode(this.lv).parentNode.offsetTop;
-    // simulate initial Ajax
-    setTimeout(() => {
-      genData();
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(dataBlobs, sectionIDs, rowIDs),
-        isLoading: false,
-        height: hei
-      });
-    }, 600);
+    this.getList();
   }
-
+  getList() {
+    fetch('../data/appListData.json')
+      .then(res => res.json())
+      .then(res => {
+        console.log(res.feed)
+        let data = res.feed.entry.map((item,i) => {
+          return ({
+            img:item['im:image'][0]['label'],
+            title: item.title.label,
+            category: item.category.attributes.label,
+            rate:i
+          })
+        })
+        this.setState({appList:data}, () => {
+          const hei = document.documentElement.clientHeight - ReactDOM.findDOMNode(this.lv).parentNode.offsetTop;
+          setTimeout(() => {
+            genData();
+            this.setState({
+              dataSource: this.state.dataSource.cloneWithRowsAndSections(dataBlobs, sectionIDs, rowIDs),
+              isLoading: false,
+              height: hei
+            });
+          }, 600);
+        });
+      })
+      .catch(e => console.log('错误:', e));
+  }
   onEndReached = event => {
     // load new data
     // hasMore: from backend data, indicates whether it is the last page, here is false
@@ -93,7 +98,7 @@ class AppList extends React.Component {
     }, 1000);
   };
   render() {
-    let data = this.state.appList
+    let data = this.state.appList;
     let index = data.length - 1;
     const row = (rowData, sectionID, rowID) => {
       if (index < 0) {
@@ -111,7 +116,6 @@ class AppList extends React.Component {
       <ListView
         ref={el => (this.lv = el)}
         dataSource={this.state.dataSource}
-        // renderBodyComponent={() => <MyBody />}
         renderRow={row}
         useBodyScroll={true}
         pageSize={4}

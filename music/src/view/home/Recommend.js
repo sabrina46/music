@@ -9,35 +9,35 @@ class Recommend extends React.Component {
     this.state = {
       recommendList: [
         {
-          img: 'https://zos.alipayobjects.com/rmsportal/dKbkpPXKfvZzWCM.png',
-          title: 'Meet hotel',
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/XmwCzSeJiqpkuMB.png',
-          title: "McDonald's invites you",
-          desc: '不是所有的兼职汪都需要风吹日晒'
-        },
-        {
-          img: 'https://zos.alipayobjects.com/rmsportal/hfVtzEhPzTUewPm.png',
-          title: 'Eat the week',
-          desc: '不是所有的兼职汪都需要风吹日晒'
+          img:'' ,
+          title: '',
+          desc: '',
+          category: ''
         }
       ]
     };
   }
   componentDidMount() {
-    new Swiper('.swiper-container', {
-      slidesPerView: 'auto',
-      spaceBetween: 20
-    });
     this.getList();
   }
   getList() {
     fetch('../data/recomendData.json')
       .then(res => res.json())
       .then(res => {
-        this.setState = { recommendList: res.entry };
+        let data = res.feed.entry.map((item,i) => {
+          return ({
+            img:item['im:image'][0]['label'],
+            title: item.title.label,
+            category: item.category.attributes.label,
+            rate:i
+          })
+        })
+        this.setState({ recommendList: data },() => {
+          new Swiper('.swiper-container', {
+            slidesPerView: 'auto',
+            spaceBetween: 20
+          });
+        });
       })
       .catch(e => console.log('错误:', e));
   }
@@ -53,7 +53,7 @@ class Recommend extends React.Component {
                 <div className={classnames([recommend.item, 'swiper-slide'])} key={i}>
                   <img src={item.img} alt="app" className={recommend.img} />
                   <span className={recommend.name}>{item.title}</span>
-                  <span className={recommend.info}>{item.desc}</span>
+                  <span className={recommend.info}>{item.category}</span>
                 </div>
               );
             })}

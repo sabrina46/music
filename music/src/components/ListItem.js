@@ -10,7 +10,9 @@ class ListItem extends React.Component {
         <div className={styles.recommend}>
           <span className={styles.name}>{this.props.list.title}</span>
           <span className={styles.info}>{this.props.list.category}</span>
-          <span className={styles.rate}><i className="iconfont icon-pingfen1"></i></span>
+          <span className={styles.rate}>
+            <i className="iconfont icon-pingfen1"></i>
+          </span>
         </div>
       </Flex>
     );

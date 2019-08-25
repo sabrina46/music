@@ -3,13 +3,14 @@ import recommend from './recommend.module.scss';
 import Swiper from 'swiper/dist/js/swiper.js';
 import 'swiper/dist/css/swiper.min.css';
 import classnames from 'classnames';
+import { Link } from 'react-router-dom';
 class Recommend extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       recommendList: [
         {
-          img:'' ,
+          img: '',
           title: '',
           desc: '',
           category: ''
@@ -24,15 +25,15 @@ class Recommend extends React.Component {
     fetch('../data/recomendData.json')
       .then(res => res.json())
       .then(res => {
-        let data = res.feed.entry.map((item,i) => {
-          return ({
-            img:item['im:image'][0]['label'],
+        let data = res.feed.entry.map((item, i) => {
+          return {
+            img: item['im:image'][0]['label'],
             title: item.title.label,
             category: item.category.attributes.label,
-            rate:i
-          })
-        })
-        this.setState({ recommendList: data },() => {
+            rate: i
+          };
+        });
+        this.setState({ recommendList: data }, () => {
           new Swiper('.swiper-container', {
             slidesPerView: 'auto',
             spaceBetween: 20
@@ -50,11 +51,13 @@ class Recommend extends React.Component {
           <div className={classnames([recommend.list, 'swiper-wrapper'])}>
             {recommendList.map((item, i) => {
               return (
-                <div className={classnames([recommend.item, 'swiper-slide'])} key={i}>
-                  <img src={item.img} alt="app" className={recommend.img} />
-                  <span className={recommend.name}>{item.title}</span>
-                  <span className={recommend.info}>{item.category}</span>
-                </div>
+                <Link to='/detail'>
+                  <div className={classnames([recommend.item, 'swiper-slide'])} key={i}>
+                    <img src={item.img} alt="app" className={recommend.img} />
+                    <span className={recommend.name}>{item.title}</span>
+                    <span className={recommend.info}>{item.category}</span>
+                  </div>
+                </Link>
               );
             })}
           </div>

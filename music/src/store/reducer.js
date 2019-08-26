@@ -1,16 +1,16 @@
-import { type } from './action';
+import { combineReducers } from 'redux'
+import { actionTypes } from './action';
 
-const initialState = {
-  menuName: ['首页']
-};
-
-export default (state = initialState , action) => {
+const appList = (state = [], action) => {
   switch (action.type) {
-    case type.SWITCH_MENU:
-      return {
-        menuName: action.menuName
-      };
+    case actionTypes.GET_APP_LIST:
+      return action.payload
     default:
-      return state;
+      return state
   }
 }
+const reducers = combineReducers({
+  appList
+})
+
+export default reducers

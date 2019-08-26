@@ -1,10 +1,12 @@
-export const type = {
-  SWITCH_MENU: 'SWITCH_MENU'
-};
+const GET_APP_LIST = 'GET_APP_LIST'
 
-export function switchMenu(menuName) {
+export let actionTypes = {
+  GET_APP_LIST,
+}
+
+export function createAction (type, payload) {
   return {
-    type: type.SWITCH_MENU,
-    menuName
+    type,
+    payload
   }
 }

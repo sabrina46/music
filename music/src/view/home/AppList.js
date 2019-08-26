@@ -3,6 +3,9 @@ import ListItem from '../../components/ListItem.js';
 import ReactDOM from 'react-dom';
 import { ListView } from 'antd-mobile';
 import styles from './appList.module.scss';
+import { connect } from 'react-redux';
+import * as PropTypes from 'prop-types'
+
 const NUM_SECTIONS = 5;
 const NUM_ROWS_PER_SECTION = 5;
 let pageIndex = 0;
@@ -28,6 +31,9 @@ function genData(pIndex = 0) {
   rowIDs = [...rowIDs];
 }
 class AppList extends React.Component {
+  static propTypes = {
+    appList: PropTypes.array.isRequired
+  }
   constructor(props) {
     super(props);
     const getSectionData = (dataBlob, sectionID) => dataBlob[sectionID];
@@ -59,7 +65,6 @@ class AppList extends React.Component {
     fetch('../data/appListData.json')
       .then(res => res.json())
       .then(res => {
-        console.log(res.feed)
         let data = res.feed.entry.map((item,i) => {
           return ({
             img:item['im:image'][0]['label'],
@@ -98,7 +103,7 @@ class AppList extends React.Component {
     }, 1000);
   };
   render() {
-    let data = this.state.appList;
+    let data = this.props.appList.length > 0 ? this.props.appList : this.state.appList;
     let index = data.length - 1;
     const row = (rowData, sectionID, rowID) => {
       if (index < 0) {
@@ -129,4 +134,9 @@ class AppList extends React.Component {
     );
   }
 }
-export default AppList;
+const mapStateToProps = (state) => {
+  return {
+    appList: state.appList
+  }
+};
+export default connect(mapStateToProps)(AppList);

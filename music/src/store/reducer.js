@@ -1,16 +1,16 @@
 import { combineReducers } from 'redux'
 import { actionTypes } from './action';
 
-const appList = (state = [], action) => {
+const keyword = (state = '', action) => {
   switch (action.type) {
-    case actionTypes.GET_APP_LIST:
+    case actionTypes.SET_KEYWORD:
       return action.payload
     default:
       return state
   }
 }
 const reducers = combineReducers({
-  appList
+  keyword
 })
 
 export default reducers

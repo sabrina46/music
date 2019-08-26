@@ -5,7 +5,7 @@ class ListItem extends React.Component {
   render() {
     return (
       <Flex className={styles.item}>
-        <span className={styles.sort}>1</span>
+        <span className={styles.sort}>{this.props.list.sort}</span>
         <img className={styles.img} src={this.props.list.img} alt="app" />
         <div className={styles.recommend}>
           <span className={styles.name}>{this.props.list.title}</span>

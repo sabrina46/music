@@ -1,7 +1,7 @@
-const GET_APP_LIST = 'GET_APP_LIST'
+const SET_KEYWORD = 'SET_KEYWORD'
 
 export let actionTypes = {
-  GET_APP_LIST,
+  SET_KEYWORD,
 }
 
 export function createAction (type, payload) {

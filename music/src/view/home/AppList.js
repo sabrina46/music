@@ -1,41 +1,19 @@
 import React from 'react';
 import ListItem from '../../components/ListItem.js';
-import ReactDOM from 'react-dom';
 import { ListView } from 'antd-mobile';
 import styles from './appList.module.scss';
 import { connect } from 'react-redux';
-import * as PropTypes from 'prop-types'
+import * as PropTypes from 'prop-types';
+import store from '../../store/store';
 
-const NUM_SECTIONS = 5;
-const NUM_ROWS_PER_SECTION = 5;
-let pageIndex = 0;
-
-const dataBlobs = {};
-let sectionIDs = [];
-let rowIDs = [];
-function genData(pIndex = 0) {
-  for (let i = 0; i < NUM_SECTIONS; i++) {
-    const ii = pIndex * NUM_SECTIONS + i;
-    const sectionName = `Section ${ii}`;
-    sectionIDs.push(sectionName);
-    dataBlobs[sectionName] = sectionName;
-    rowIDs[ii] = [];
-
-    for (let jj = 0; jj < NUM_ROWS_PER_SECTION; jj++) {
-      const rowName = `S${ii}, R${jj}`;
-      rowIDs[ii].push(rowName);
-      dataBlobs[rowName] = rowName;
-    }
-  }
-  sectionIDs = [...sectionIDs];
-  rowIDs = [...rowIDs];
-}
+let pageSize = 5;
 class AppList extends React.Component {
   static propTypes = {
-    appList: PropTypes.array.isRequired
-  }
+    keyword: PropTypes.string.isRequired
+  };
   constructor(props) {
     super(props);
+
     const getSectionData = (dataBlob, sectionID) => dataBlob[sectionID];
     const getRowData = (dataBlob, sectionID, rowID) => dataBlob[rowID];
 
@@ -48,85 +26,110 @@ class AppList extends React.Component {
     this.state = {
       dataSource,
       isLoading: true,
-      appList: [
-        {
-          img:'' ,
-          title: '',
-          desc: '',
-          category: ''
-        }
-      ]
+      pageIndex: 1,
+      appList: [],
+      dataArr: [],
+      keyword: ''
     };
   }
-  componentDidMount() {
-    this.getList();
-  }
   getList() {
-    fetch('../data/appListData.json')
+    let pageIndex = this.state.pageIndex;
+    let that = this;
+    fetch('../data/appListData.json', {
+      method: 'get',
+      dataType: 'json'
+    })
       .then(res => res.json())
       .then(res => {
-        let data = res.feed.entry.map((item,i) => {
-          return ({
-            img:item['im:image'][0]['label'],
+        let data = res.feed.entry.slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize).map((item, i) => {
+          return {
+            img: item['im:image'][0]['label'],
             title: item.title.label,
             category: item.category.attributes.label,
-            rate:i
-          })
-        })
-        this.setState({appList:data}, () => {
-          const hei = document.documentElement.clientHeight - ReactDOM.findDOMNode(this.lv).parentNode.offsetTop;
-          setTimeout(() => {
-            genData();
-            this.setState({
-              dataSource: this.state.dataSource.cloneWithRowsAndSections(dataBlobs, sectionIDs, rowIDs),
-              isLoading: false,
-              height: hei
-            });
-          }, 600);
+            rate: i,
+            sort: i + 1 + (pageIndex - 1) * pageSize
+          };
+        });
+        console.log(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize);
+
+        //这里表示上拉加载更多
+        let rdata = [...that.state.appList, ...data];
+        that.setState({
+          appList: rdata,
+          dataSource: that.state.dataSource.cloneWithRows(rdata),
+          isLoading: data.length !== 0
         });
       })
       .catch(e => console.log('错误:', e));
   }
+  searchList() {
+    if (!this.props.keyword) return;
+    fetch('../data/lookUp.json', {
+      method: 'get',
+      dataType: 'json',
+      body: { keyword: this.props.keyword }
+    })
+      .then(res => res.json())
+      .then(res => {
+        let data = res.results.map(item => {
+          let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
+          return {
+            img: item.screenshotUrls[0],
+            title: item.trackName,
+            category: category
+          };
+        });
+        this.setState({ searchList: data });
+        // this.props.setKeyword(data)
+      })
+      .catch(e => this.clearList());
+  }
+  componentDidMount() {
+    this.getList(true);
+    store.subscribe(() => {
+      let {
+        common: { age: iptVal }
+      } = store.getState();
+      this.setState({ iptVal });
+    });
+  }
+  onRefresh = () => {
+    let that = this;
+    this.setState({ refreshing: true, isLoading: true, pageIndex: 1 });
+    setTimeout(() => {
+      that.getList(true);
+    }, 2000);
+  };
   onEndReached = event => {
-    // load new data
-    // hasMore: from backend data, indicates whether it is the last page, here is false
-    if (this.state.isLoading && !this.state.hasMore) {
+    if (!this.state.isLoading) {
       return;
     }
-    this.setState({ isLoading: true });
+    this.setState({ pageIndex: this.state.pageIndex + 1 });
+    let that = this;
     setTimeout(() => {
-      genData(++pageIndex);
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(dataBlobs, sectionIDs, rowIDs),
-        isLoading: false
-      });
+      that.getList(false);
     }, 1000);
   };
   render() {
-    let data = this.props.appList.length > 0 ? this.props.appList : this.state.appList;
-    let index = data.length - 1;
+    console.log(this.props.keyword, 'keyword');
+    let data = this.state.appList;
+    let index = data.length - 5;
     const row = (rowData, sectionID, rowID) => {
-      if (index < 0) {
-        index = data.length - 1;
-      }
-      const obj = data[index--];
+      const obj = data[index++];
       return (
         <div className={styles.content}>
-          <ListItem list={obj} key={rowID} indx={pageIndex}></ListItem>
+          <ListItem list={obj} key={rowID}></ListItem>
         </div>
       );
     };
-
     return (
       <ListView
         ref={el => (this.lv = el)}
         dataSource={this.state.dataSource}
+        renderFooter={() => <div style={{ padding: 30, textAlign: 'center' }}>{this.state.isLoading ? '加载中...' : '加载完成'}</div>}
         renderRow={row}
         useBodyScroll={true}
         pageSize={4}
-        onScroll={() => {
-          console.log('scroll');
-        }}
         scrollRenderAheadDistance={500}
         onEndReached={this.onEndReached}
         onEndReachedThreshold={10}
@@ -134,9 +137,9 @@ class AppList extends React.Component {
     );
   }
 }
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
-    appList: state.appList
-  }
+    keyword: state.keyword
+  };
 };
 export default connect(mapStateToProps)(AppList);

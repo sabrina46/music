@@ -6,51 +6,49 @@ import { connect } from 'react-redux';
 import { actionTypes,createAction } from '../../store/action';
 class Header extends React.Component {
   static propTypes = {
-    getAppList: PropTypes.func.isRequired,
-    appList: PropTypes.array.isRequired
+    setKeyword: PropTypes.func.isRequired,
+    keyword: PropTypes.string.isRequired
   }
   constructor (props){
     super(props)
     this.state = {
-      isSearch: false,
       isLoading: false,
-      searchList: [],
       keyword: '',
-      total: 0
     }
   }
-  getData(){
-    fetch('../data/lookUp.json')
-    .then(res => res.json())
-    .then(res => {
-      let data = res.results.map(item => {
-       let category =  item.genres.length > 1 ?  item.genres.splice(0,2).join('和'):item.genres[0]
-        return {
-          img: item.screenshotUrls[0],
-          title: item.trackName,
-          category:category,
-        };
-      });
-      this.setState({ searchList: data });
-      this.props.getAppList(data)
-    })
-    .catch(e =>
-       this.clearList()
-    );
-  }
-  search = (isEmpty) => {
-    let len = this.state.searchList.length
-    if ((this.state.total === len && len > 0) || this.state.isLoading) {
-      return
-    }
-    this.setState({
-      isLoading: true
-    }, () => {
-      this.getData()
-    })
-  }
+  // getData(){
+  //   fetch('../data/lookUp.json')
+  //   .then(res => res.json())
+  //   .then(res => {
+  //     let data = res.results.map(item => {
+  //      let category =  item.genres.length > 1 ?  item.genres.splice(0,2).join('和'):item.genres[0]
+  //       return {
+  //         img: item.screenshotUrls[0],
+  //         title: item.trackName,
+  //         category:category,
+  //       };
+  //     });
+  //     this.setState({ searchList: data });
+  //     this.props.setKeyword(data)
+  //   })
+  //   .catch(e =>
+  //      this.clearList()
+  //   );
+  // }
+  // search = (isEmpty) => {
+  //   // let len = this.state.searchList.length
+  //   // if ((this.state.total === len && len > 0) || this.state.isLoading) {
+  //   //   return
+  //   // }
+  //   this.setState({
+  //     isLoading: true
+  //   }, () => {
+  //     this.props.setKeyword(data)
+  //   })
+  // }
   clearList = () => {
-    this.props.getAppList([])
+    this.setState({keyword:''})
+    this.props.setKeyword('')
   }
   handleChange = (value) => {
       if (value) {
@@ -59,7 +57,7 @@ class Header extends React.Component {
           isLoading: false,
           total: 0,
           appList: []
-        }, () => this.search(true))
+        }, () =>  this.props.setKeyword(value))
       } else {
         this.setState({
           keyword: value,
@@ -84,14 +82,14 @@ class Header extends React.Component {
 }
 const mapStateToProps = (state) => {
   return {
-    appList: state.appList
+    keyword: state.keyword
   }
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getAppList: list => {
-      dispatch(createAction(actionTypes.GET_APP_LIST, list))
+    setKeyword: val => {
+      dispatch(createAction(actionTypes.SET_KEYWORD, val))
     }
   }
 };

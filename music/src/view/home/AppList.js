@@ -76,14 +76,23 @@ class AppList extends React.Component {
     let reg = new RegExp(keyword,"gim")
     let pageIndex = this.state.pageIndex;
     let data = this.state.allData
-    let newData = data.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim())).slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize).map((item,i) => {
+    let newData = data.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()))
+    .slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize)
+    .map((item,i) => {
       item.sort = i + 1 + (pageIndex - 1) * pageSize
       return item
     })
     this.setState({
+            appList: newData,
+            dataSource: this.state.dataSource.cloneWithRows(newData),
+            isLoading: data.length !== 0 && data.length > pageSize
+          });
+    this.setState({
       appList: newData,
       dataSource: this.state.dataSource.cloneWithRows(newData),
       isLoading: newData.length !== 0 && newData.length > pageSize
+    },() => {
+      console.log(this.state.appList,'app')
     });
     // let pageIndex = this.state.pageIndex;
     // fetch('../data/lookUp.json', {

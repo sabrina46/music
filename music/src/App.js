@@ -5,7 +5,6 @@ import './App.scss';
 import Header from './view/home/Header.js';
 import Recommend from './view/home/Recommend.js';
 import AppList from './view/home/AppList.js';
-import SearchPage from './view/home/SearchPage.js';
 
 import './assets/css/antd.scss';
 class App extends React.Component {
@@ -15,7 +14,6 @@ class App extends React.Component {
         <Header className="app-header" />
         <Recommend className="app-recommend" />
         <AppList className="app-list" />
-        <SearchPage />
       </div>
     );
   }

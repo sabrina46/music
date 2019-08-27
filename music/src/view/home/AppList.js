@@ -4,7 +4,7 @@ import { ListView } from 'antd-mobile';
 import styles from './appList.module.scss';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
-import store from '../../store/store';
+// import store from '../../store/store';
 
 let pageSize = 5;
 class AppList extends React.Component {
@@ -32,10 +32,10 @@ class AppList extends React.Component {
       keyword: ''
     };
   }
-  init() {
-    if (!this.state.keyword) this.getList();
-    else this.searchList();
-  }
+  // init  = () => {
+  //   if (!this.state.keyword) this.getList();
+  //   else this.searchList();
+  // }
   getList() {
     let pageIndex = this.state.pageIndex;
     let that = this;
@@ -69,25 +69,17 @@ class AppList extends React.Component {
     let pageIndex = this.state.pageIndex;
     fetch('../data/lookUp.json', {
       method: 'get',
-      dataType: 'json'
-      // body: JSON.stringify({ keyword: this.props.keyword })
+      dataType: 'json',
+      //  body: JSON.stringify({ keyword: this.props.keyword })
     })
       .then(res => res.json())
       .then(res => {
-        // let data = res.results.map(item => {
-        //   let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
-        //   return {
-        //     img: item.screenshotUrls[0],
-        //     title: item.trackName,
-        //     category: category
-        //   };
-        // });
         let data = res.results.slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize).map((item, i) => {
+          let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
           return {
-            img: item['im:image'][0]['label'],
-            title: item.title.label,
-            category: item.category.attributes.label,
-            rate: i,
+            img: item.screenshotUrls[0],
+            title: item.trackName,
+            category: category,
             sort: i + 1 + (pageIndex - 1) * pageSize
           };
         });
@@ -95,17 +87,24 @@ class AppList extends React.Component {
         this.setState({
           appList: rdata,
           dataSource: this.state.dataSource.cloneWithRows(rdata),
-          isLoading: data.length !== 0
+          isLoading: data.length !== 0 && data.length > pageSize
         });
       })
       .catch(e => console.log('错误：', e));
   }
   componentDidMount() {
-    this.getList(true);
-    store.subscribe(() => {
-      console.log(store.getState());
-      this.setState({ appList: [], ...store.getState() }, this.init);
-    });
+    this.getList();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.keyword !== nextProps.keyword) {
+      //在这里我们仍可以通过this.props来获取旧的外部状态
+      if (nextProps.keyword) {
+         this.setState({ appList: [],pageIndex: 1 }, this.searchList());
+      }else{
+        this.setState({ appList: [],pageIndex: 1 },  this.getList());
+      }
+    }
   }
   onRefresh = () => {
     let that = this;
@@ -125,10 +124,13 @@ class AppList extends React.Component {
     }, 1000);
   };
   render() {
+    console.log('render')
     let data = this.state.appList;
-    let index = data.length - 5;
+    if(data.length === 0) return (<div className={styles.empty}>暂无数据</div>);
+    let index = data.length < pageSize ? 0 : data.length - pageSize;
     const row = (rowData, sectionID, rowID) => {
       const obj = data[index++];
+      if(!obj) return ''
       return (
         <div className={styles.content}>
           <ListItem list={obj} key={rowID}></ListItem>
@@ -139,7 +141,7 @@ class AppList extends React.Component {
       <ListView
         ref={el => (this.lv = el)}
         dataSource={this.state.dataSource}
-        renderFooter={() => <div style={{ padding: 30, textAlign: 'center' }}>{this.state.isLoading ? '加载中...' : '加载完成'}</div>}
+        renderFooter={() => <div style={{ padding: 10, textAlign: 'center' }}>{this.state.isLoading ? '加载中...' : '加载完成'}</div>}
         renderRow={row}
         useBodyScroll={true}
         pageSize={4}

@@ -26,9 +26,34 @@ class Recommend extends React.Component {
   componentDidMount() {
     this.getList();
   }
-  getList() {
-    fetch('../data/recomendData.json')
+  searchList() {
+    fetch('../data/lookUp.json', {
+      method: 'get',
+      dataType: 'json',
+      //  body: JSON.stringify({ keyword: this.props.keyword })
+    })
       .then(res => res.json())
+      .then(res => {
+        let data = res.results.map((item, i) => {
+          let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
+          return {
+            img: item.screenshotUrls[0],
+            title: item.trackName,
+            category: category,
+            sort: i + 1
+          };
+        });
+        this.setState({
+          recommendList: data
+        });
+      })
+      .catch(e => console.log('错误：', e));
+  }
+  getList() {
+    fetch('../data/recomendData.json',{
+      method: 'get',
+      dataType: 'json',
+    }).then(res => res.json())
       .then(res => {
         let data = res.feed.entry.map((item, i) => {
           return {
@@ -48,6 +73,16 @@ class Recommend extends React.Component {
         });
       })
       .catch(e => console.log('错误:', e));
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.keyword !== nextProps.keyword) {
+      //在这里我们仍可以通过this.props来获取旧的外部状态
+      if (nextProps.keyword) {
+         this.setState({ recommendList: []}, this.searchList());
+      }else{
+        this.setState({ recommendList: [] },  this.getList());
+      }
+    }
   }
   render() {
     let recommendList =  this.state.recommendList;

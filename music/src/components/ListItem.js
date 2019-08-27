@@ -8,7 +8,7 @@ class ListItem extends React.Component {
         <span className={styles.sort}>{this.props.list.sort}</span>
         <img className={styles.img} src={this.props.list.img} alt="app" />
         <div className={styles.recommend}>
-          <span className={styles.name}>{this.props.list.title}</span>
+          <span className={styles.name}>{this.props.list.title}1111111111111111111111111111111111111111111111111111</span>
           <span className={styles.info}>{this.props.list.category}</span>
           <span className={styles.rate}>
             <i className="iconfont icon-pingfen1"></i>

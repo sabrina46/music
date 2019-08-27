@@ -30,10 +30,8 @@
       width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-clamp: 2;
+      white-space: nowrap;
       color: #333;
-      min-height: 25px;
-
     }
     .info{
       color: #ddd;

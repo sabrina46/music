@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import './assets/font/iconfont.css';
 import App from './App.js';
-import Detail from './view/recommendation';
+import Detail from './view/Recommendation';
 import * as serviceWorker from './serviceWorker';
 import { HashRouter, Route } from 'react-router-dom';
 import store from './store/store';

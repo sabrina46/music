@@ -73,7 +73,7 @@ class Header extends React.Component {
       <div className={header.content}>
         <Flex justify="center" align="center">
           <Flex.Item>
-            <SearchBar className="my-search" placeholder="Search" value={this.state.keyword} onChange={this.handleChange} onCancel={this.clearList} onClear={this.clearList}/>
+            <SearchBar className="my-search" placeholder="Search" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleChange} onCancel={this.clearList} onClear={this.clearList}/>
           </Flex.Item>
         </Flex>
       </div>

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 // import store from '../../store/store';
 
-let pageSize = 5;
+const pageSize = 10;
 class AppList extends React.Component {
   static propTypes = {
     keyword: PropTypes.string.isRequired
@@ -124,7 +124,6 @@ class AppList extends React.Component {
     }, 1000);
   };
   render() {
-    console.log('render')
     let data = this.state.appList;
     if(data.length === 0) return (<div className={styles.empty}>暂无数据</div>);
     let index = data.length < pageSize ? 0 : data.length - pageSize;
@@ -132,9 +131,7 @@ class AppList extends React.Component {
       const obj = data[index++];
       if(!obj) return ''
       return (
-        <div className={styles.content}>
           <ListItem list={obj} key={rowID}></ListItem>
-        </div>
       );
     };
     return (

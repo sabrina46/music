@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 // import store from '../../store/store';
 
-let pageSize = 10;
+const pageSize = 10;
 class Recommendation extends React.Component {
   static propTypes = {
     keyword: PropTypes.string.isRequired

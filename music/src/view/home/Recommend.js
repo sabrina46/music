@@ -35,7 +35,7 @@ class Recommend extends React.Component {
     })
       .then(res => res.json())
       .then(res => {
-        let data = res.results.map((item, i) => {
+        let data = res.results.splice(0,10).map((item, i) => {
           let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
           return {
             img: item.screenshotUrls[0],
@@ -56,7 +56,7 @@ class Recommend extends React.Component {
       dataType: 'json',
     }).then(res => res.json())
       .then(res => {
-        let data = res.feed.entry.map((item, i) => {
+        let data = res.feed.entry.slice(0,10).map((item, i) => {
           return {
             img: item['im:image'][0]['label'],
             title: item.title.label,

@@ -28,11 +28,10 @@ class AppList extends React.Component {
       pageIndex: 1,
       appList: [],
       dataArr: [],
-      allData:[],
+      allData: []
     };
   }
-  getList() {
-    let pageIndex = this.state.pageIndex;
+  getList(keyword) {
     let that = this;
     fetch('../data/appListData.json', {
       method: 'get',
@@ -40,62 +39,55 @@ class AppList extends React.Component {
     })
       .then(res => res.json())
       .then(res => {
-        let author = res.feed.author
+        let author = res.feed.author;
         // 分页数据
-        let data = res.feed.entry.slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize).map((item, i) => ({
-            img: item['im:image'][0]['label'],
-            title: item.title.label,
-            category: item.category.attributes.label,
-            rate: i,
-            author:author,
-            summary: item.summary.label,
-            sort: i + 1 + (pageIndex - 1) * pageSize
-        }));
         // 所有数据，用于搜索
-        let allData = res.feed.entry.map((item,i) => ({
-            img: item['im:image'][0]['label'],
-            title: item.title.label,
-            category: item.category.attributes.label,
-            rate: i,
-            author:author,
-            summary: item.summary.label,
-            sort: i + 1 + (pageIndex - 1) * pageSize
-        }))
+        let allData = res.feed.entry.map((item, i) => ({
+          img: item['im:image'][0]['label'],
+          title: item.title.label,
+          category: item.category.attributes.label,
+          rate: i,
+          author: author,
+          summary: item.summary.label,
+          sort: i + 1
+        }));
+        // let reg = new RegExp(keyword, 'gim');
+        // debugger;
         //这里表示上拉加载更多
+        // let data = (allData => {
+        //   if (keyword) return allData.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()));
+        //   else return allData;
+        // })(allData)
+        let data = allData.slice((this.state.pageIndex - 1) * pageSize, this.state.pageIndex * pageSize);
         let rdata = [...that.state.appList, ...data];
         that.setState({
           appList: rdata,
           dataSource: that.state.dataSource.cloneWithRows(rdata),
           isLoading: data.length !== 0,
-          allData:allData
+          allData: allData
         });
       })
       .catch(e => console.log('错误:', e));
   }
   searchList(keyword) {
-    let reg = new RegExp(keyword,"gim")
+    let reg = new RegExp(keyword, 'gim');
     let pageIndex = this.state.pageIndex;
-    let data = this.state.allData
-    let newData = data.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()))
-    .slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize)
-    .map((item,i) => {
-      item.sort = i + 1 + (pageIndex - 1) * pageSize
-      return item
-    })
-    this.setState({
-            appList: newData,
-            dataSource: this.state.dataSource.cloneWithRows(newData),
-            isLoading: data.length !== 0 && data.length > pageSize
-          });
+    let data = this.state.allData;
+    let newData = data
+      .filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()))
+      .slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize)
+      .map((item, i) => {
+        item.sort = i + 1 + (pageIndex - 1) * pageSize;
+        return item;
+      });
     this.setState({
       appList: newData,
-      dataSource: this.state.dataSource.cloneWithRows(newData),
-      isLoading: newData.length !== 0 && newData.length > pageSize
-    },() => {
-      console.log(this.state.appList,'app')
+      // dataSource: this.state.dataSource.cloneWithRows(newData),
+      isLoading: data.length !== 0 && data.length > pageSize
     });
+
     // let pageIndex = this.state.pageIndex;
-    // fetch('../data/lookUp.json', {
+    // fetch('../data/appListData.json', {
     //   method: 'get',
     //   dataType: 'json',
     //   //  body: JSON.stringify({ keyword: this.props.keyword })
@@ -124,21 +116,16 @@ class AppList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.keyword !== nextProps.keyword) {
-      //在这里我们仍可以通过this.props来获取旧的外部状态
-      if (nextProps.keyword) {
-       this.setState({ appList: [],pageIndex: 1}, this.searchList(nextProps.keyword));
-      //  this.setState({ appList: [],pageIndex: 1 }, this.searchList(nextProps.keyword));
-      }else{
-        this.setState({ appList: [],pageIndex: 1 },  this.getList());
-      }
-    }
+    //在这里我们仍可以通过this.props来获取旧的外部状态
+    this.setState({ appList: [], pageIndex: 1 }, () => {
+      if (this.props.keyword) this.searchList(this.props.keyword);
+      else this.getList();
+    });
   }
   onRefresh = () => {
-    let that = this;
     this.setState({ isLoading: true, pageIndex: 1 });
     setTimeout(() => {
-      that.getList(true);
+      this.getList();
     }, 2000);
   };
   onEndReached = event => {
@@ -146,23 +133,23 @@ class AppList extends React.Component {
       return;
     }
     this.setState({ pageIndex: this.state.pageIndex + 1 });
-    let that = this;
     setTimeout(() => {
-      that.getList(false);
+      if (this.props.keyword) this.searchList(this.props.keyword);
+      else this.getList();
     }, 1000);
   };
   render() {
     let data = this.state.appList;
-    console.log(data,'render')
-    if(data.length === 0) return (<div className={styles.empty}>暂无数据</div>);
+    if (data.length === 0) return <div className={styles.empty}>暂无数据</div>;
     let index = data.length < pageSize ? 0 : data.length - pageSize;
+
+    console.log(data);
     const row = (rowData, sectionID, rowID) => {
       const obj = data[index++];
-      if(!obj) return ''
-      return (
-          <ListItem list={obj} key={rowID}></ListItem>
-      );
+      if (!obj) return '';
+      return <ListItem list={obj} key={rowID}></ListItem>;
     };
+    // console.log('rdata:', data, this.state.pageIndex);
     return (
       <ListView
         ref={el => (this.lv = el)}
@@ -170,7 +157,6 @@ class AppList extends React.Component {
         renderFooter={() => <div style={{ padding: 10, textAlign: 'center' }}>{this.state.isLoading ? '加载中...' : '加载完成'}</div>}
         renderRow={row}
         useBodyScroll={true}
-        pageSize={4}
         scrollRenderAheadDistance={500}
         onEndReached={this.onEndReached}
         onEndReachedThreshold={10}

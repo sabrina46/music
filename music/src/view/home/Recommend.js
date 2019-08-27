@@ -14,57 +14,62 @@ class Recommend extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      recommendList: [
-        {
-          img: '',
-          title: '',
-          desc: '',
-          category: ''
-        }
-      ]
+      recommendList: [],
+      allData:[]
     };
   }
   componentDidMount() {
     this.getList();
   }
-  searchList() {
-    fetch('../data/lookUp.json', {
+  searchList(keyword) {
+    // 第一种方法 静态对所有数据进行过滤
+    let reg = new RegExp(keyword, 'gim');
+    let data = this.state.allData;
+    let newData = data.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()))
+    .slice(0, 10);
+    this.setState({
+      recommendList: newData
+    });
+    // 第二种方法 请求接口 动态展示数据
+    // fetch('../data/lookUp.json', {
+    //   method: 'get',
+    //   dataType: 'json'
+    //   //  body: JSON.stringify({ keyword: this.props.keyword })
+    // })
+    // .then(res => res.json())
+    // .then(res => {
+    //     let data = res.results.splice(0, 10).map((item, i) => {
+    //       let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
+    //       return {
+    //         img: item.screenshotUrls[0],
+    //         title: item.trackName,
+    //         category: category,
+    //         sort: i + 1
+    //       };
+    //     });
+    //     this.setState({
+    //       recommendList: data
+    //     });
+    // })
+    // .catch(e => console.log('错误：', e));
+  }
+  getList() {
+    fetch('../data/recomendData.json', {
       method: 'get',
-      dataType: 'json',
-      //  body: JSON.stringify({ keyword: this.props.keyword })
+      dataType: 'json'
     })
       .then(res => res.json())
       .then(res => {
-        let data = res.results.splice(0,10).map((item, i) => {
-          let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
-          return {
-            img: item.screenshotUrls[0],
-            title: item.trackName,
-            category: category,
-            sort: i + 1
-          };
-        });
-        this.setState({
-          recommendList: data
-        });
-      })
-      .catch(e => console.log('错误：', e));
-  }
-  getList() {
-    fetch('../data/recomendData.json',{
-      method: 'get',
-      dataType: 'json',
-    }).then(res => res.json())
-      .then(res => {
-        let data = res.feed.entry.slice(0,10).map((item, i) => {
-          return {
-            img: item['im:image'][0]['label'],
-            title: item.title.label,
-            category: item.category.attributes.label,
-            rate: i
-          };
-        });
-        this.setState({ recommendList: data }, () => {
+        let author = res.feed.author;
+        let allData = res.feed.entry.map((item, i) => ({
+          img: item['im:image'][0]['label'],
+          title: item.title.label,
+          author: author,
+          summary: item.summary.label,
+          category: item.category.attributes.label
+        }));
+        let data = allData.slice(0, 10)
+        this.setState({ recommendList: data,allData:allData, }, () => {
           new Swiper('.swiper-container', {
             slidesPerView: 'auto',
             spaceBetween: 20,
@@ -79,19 +84,19 @@ class Recommend extends React.Component {
     if (this.props.keyword !== nextProps.keyword) {
       //在这里我们仍可以通过this.props来获取旧的外部状态
       if (nextProps.keyword) {
-         this.setState({ recommendList: []}, this.searchList());
-      }else{
-        this.setState({ recommendList: [] },  this.getList());
+        this.searchList(nextProps.keyword);
+      } else {
+        this.setState({ recommendList: [] }, this.getList());
       }
     }
   }
   render() {
-    let recommendList =  this.state.recommendList;
+    let recommendList = this.state.recommendList;
     return (
       <div className={recommend.content}>
         <Link to="/detail">
           <h1 className={recommend.title}>推介</h1>
-          <div className={classnames([recommend.container, 'swiper-container',{'hidden': !recommendList.length}])}>
+          <div className={classnames([recommend.container, 'swiper-container', { hidden: !recommendList.length }])}>
             <div className={classnames([recommend.list, 'swiper-wrapper'])}>
               {recommendList.map((item, i) => {
                 return (
@@ -104,7 +109,7 @@ class Recommend extends React.Component {
               })}
             </div>
           </div>
-          <div className={classnames([recommend.empty,{'hidden': recommendList.length }])}>暂无数据</div>
+          <div className={classnames([recommend.empty, { hidden: recommendList.length }])}>暂无数据</div>
         </Link>
       </div>
     );

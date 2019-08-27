@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
+
 class Recommend extends React.Component {
   static propTypes = {
     keyword: PropTypes.string.isRequired
@@ -90,7 +91,7 @@ class Recommend extends React.Component {
       <div className={recommend.content}>
         <Link to="/detail">
           <h1 className={recommend.title}>推介</h1>
-          <div className={classnames([recommend.container, 'swiper-container'])}>
+          <div className={classnames([recommend.container, 'swiper-container',{'hidden': !recommendList.length}])}>
             <div className={classnames([recommend.list, 'swiper-wrapper'])}>
               {recommendList.map((item, i) => {
                 return (
@@ -103,6 +104,7 @@ class Recommend extends React.Component {
               })}
             </div>
           </div>
+          <div className={classnames([recommend.empty,{'hidden': recommendList.length }])}>暂无数据</div>
         </Link>
       </div>
     );

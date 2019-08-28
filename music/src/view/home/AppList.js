@@ -4,7 +4,6 @@ import { ListView } from 'antd-mobile';
 import styles from './appList.module.scss';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
-// import store from '../../store/store';
 
 const pageSize = 10;
 class AppList extends React.Component {
@@ -51,13 +50,6 @@ class AppList extends React.Component {
           summary: item.summary.label,
           sort: i + 1
         }));
-        // let reg = new RegExp(keyword, 'gim');
-        // debugger;
-        //这里表示上拉加载更多
-        // let data = (allData => {
-        //   if (keyword) return allData.filter(item => reg.test((item.title + item.author + item.category + item.summary).trim()));
-        //   else return allData;
-        // })(allData)
         let data = allData.slice((this.state.pageIndex - 1) * pageSize, this.state.pageIndex * pageSize);
         let rdata = [...that.state.appList, ...data];
         that.setState({
@@ -70,6 +62,7 @@ class AppList extends React.Component {
       .catch(e => console.log('错误:', e));
   }
   searchList(keyword) {
+    // 第一种方法 静态对所有数据进行过滤
     let reg = new RegExp(keyword, 'gim');
     let pageIndex = this.state.pageIndex;
     let data = this.state.allData;
@@ -82,10 +75,9 @@ class AppList extends React.Component {
       });
     this.setState({
       appList: newData,
-      // dataSource: this.state.dataSource.cloneWithRows(newData),
-      isLoading: data.length !== 0 && data.length > pageSize
+      isLoading: data.length !== 0 && newData.length > pageSize
     });
-
+   // 第二种方法 请求接口 动态展示数据
     // let pageIndex = this.state.pageIndex;
     // fetch('../data/appListData.json', {
     //   method: 'get',
@@ -142,14 +134,11 @@ class AppList extends React.Component {
     let data = this.state.appList;
     if (data.length === 0) return <div className={styles.empty}>暂无数据</div>;
     let index = data.length < pageSize ? 0 : data.length - pageSize;
-
-    console.log(data);
     const row = (rowData, sectionID, rowID) => {
       const obj = data[index++];
       if (!obj) return '';
       return <ListItem list={obj} key={rowID}></ListItem>;
     };
-    // console.log('rdata:', data, this.state.pageIndex);
     return (
       <ListView
         ref={el => (this.lv = el)}

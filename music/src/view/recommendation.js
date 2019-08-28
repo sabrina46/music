@@ -4,7 +4,6 @@ import { ListView } from 'antd-mobile';
 import styles from './recommendation.module.scss';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
-// import store from '../../store/store';
 
 const pageSize = 10;
 class Recommendation extends React.Component {
@@ -13,10 +12,8 @@ class Recommendation extends React.Component {
   };
   constructor(props) {
     super(props);
-
     const getSectionData = (dataBlob, sectionID) => dataBlob[sectionID];
     const getRowData = (dataBlob, sectionID, rowID) => dataBlob[rowID];
-
     const dataSource = new ListView.DataSource({
       getRowData,
       getSectionHeaderData: getSectionData,
@@ -61,52 +58,14 @@ class Recommendation extends React.Component {
       })
       .catch(e => console.log('错误:', e));
   }
-  searchList() {
-    let pageIndex = this.state.pageIndex;
-    fetch('../data/lookUp.json', {
-      method: 'get',
-      dataType: 'json',
-      //  body: JSON.stringify({ keyword: this.props.keyword })
-    })
-      .then(res => res.json())
-      .then(res => {
-        let data = res.results.slice(pageIndex === 0 ? 0 : (pageIndex - 1) * pageSize, pageIndex * pageSize).map((item, i) => {
-          let category = item.genres.length > 1 ? item.genres.splice(0, 2).join('和') : item.genres[0];
-          return {
-            img: item.screenshotUrls[0],
-            title: item.trackName,
-            category: category,
-            sort: i + 1 + (pageIndex - 1) * pageSize
-          };
-        });
-        let rdata = [...this.state.appList, ...data];
-        this.setState({
-          appList: rdata,
-          dataSource: this.state.dataSource.cloneWithRows(rdata),
-          isLoading: data.length !== 0 && data.length > pageSize
-        });
-      })
-      .catch(e => console.log('错误：', e));
-  }
   componentDidMount() {
     this.getList();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.keyword !== nextProps.keyword) {
-      //在这里我们仍可以通过this.props来获取旧的外部状态
-      if (nextProps.keyword) {
-         this.setState({ appList: [],pageIndex: 1 }, this.searchList());
-      }else{
-        this.setState({ appList: [],pageIndex: 1 },  this.getList());
-      }
-    }
   }
   onRefresh = () => {
     let that = this;
     this.setState({ isLoading: true, pageIndex: 1 });
     setTimeout(() => {
-      that.getList(true);
+      that.getList();
     }, 2000);
   };
   onEndReached = event => {
@@ -116,7 +75,7 @@ class Recommendation extends React.Component {
     this.setState({ pageIndex: this.state.pageIndex + 1 });
     let that = this;
     setTimeout(() => {
-      that.getList(false);
+      that.getList();
     }, 1000);
   };
   render() {

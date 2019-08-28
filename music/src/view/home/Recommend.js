@@ -31,7 +31,7 @@ class Recommend extends React.Component {
       recommendList: newData
     });
     // 第二种方法 请求接口 动态展示数据
-    // fetch('../data/lookUp.json', {
+    // fetch('../data/recomendData.json', {
     //   method: 'get',
     //   dataType: 'json'
     //   //  body: JSON.stringify({ keyword: this.props.keyword })
@@ -69,17 +69,23 @@ class Recommend extends React.Component {
           category: item.category.attributes.label
         }));
         let data = allData.slice(0, 10)
-        this.setState({ recommendList: data,allData:allData, }, () => {
-          new Swiper('.swiper-container', {
-            slidesPerView: 'auto',
-            spaceBetween: 20,
-            observer: true, //修改swiper自己或子元素时，自动初始化swiper
-            observeParents: true //修改swiper的父元素时，自动初始化swiper
-          });
-        });
+        this.setState({ recommendList: data,allData:allData, });
       })
       .catch(e => console.log('错误:', e));
   }
+  componentDidUpdate(){
+    if(this.swiper){
+      this.swiper.slideTo(0, 0)
+      this.swiper.destroy()
+      this.swiper = null;
+     }
+    this.swiper = new Swiper('.swiper-container', {
+      slidesPerView: 'auto',
+      spaceBetween: 20,
+      observer: true, //修改swiper自己或子元素时，自动初始化swiper
+      observeParents: true //修改swiper的父元素时，自动初始化swiper
+    });
+    }
   componentWillReceiveProps(nextProps) {
     if (this.props.keyword !== nextProps.keyword) {
       //在这里我们仍可以通过this.props来获取旧的外部状态
@@ -87,6 +93,7 @@ class Recommend extends React.Component {
         this.searchList(nextProps.keyword);
       } else {
         this.setState({ recommendList: [] }, this.getList());
+        this.swiper.slideTo(0, 0)
       }
     }
   }
